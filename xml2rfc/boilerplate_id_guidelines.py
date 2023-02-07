@@ -7,22 +7,22 @@ from __future__ import unicode_literals, print_function
 
 boilerplate_draft_status_of_memo = [
         """<t>
-        This Internet-Draft is submitted in full conformance with the
-        provisions of BCP 78 and BCP 79.
+        This PACT-Draft is largely based on the Internet-Drafts of the
+        Internet Engineering Task Force (IETF), thank you.
         </t>""",
         """<t>
-        Internet-Drafts are working documents of the Internet Engineering Task
-        Force (IETF). Note that other groups may also distribute working
-        documents as Internet-Drafts. The list of current Internet-Drafts is
+        PACT-Drafts are working documents of the PACT Task
+        Force (PTF). Note that other groups may also distribute working
+        documents as PACT-Drafts. The list of current PACT-Drafts is
         at <eref target="{scheme}://datatracker.ietf.org/drafts/current/"/>.
         </t>""",
         """<t>
-        Internet-Drafts are draft documents valid for a maximum of six months
+        PACT-Drafts are draft documents valid for a maximum of six months
         and may be updated, replaced, or obsoleted by other documents at any
-        time. It is inappropriate to use Internet-Drafts as reference
+        time. It is inappropriate to use PACT-Drafts as reference
         material or to cite them other than as "work in progress."
         </t>""",
         """<t>
-        This Internet-Draft will expire on {expiration_date}.
+        This PACT-Draft will expire on {expiration_date}.
         </t>""",
     ]

@@ -22,7 +22,7 @@ boilerplate_tlp = {
         "n/a": [
             """<t>
             Copyright (c) {year} IETF Trust and the persons identified as
-            the document authors.  All rights reserved. 
+            the document authors.  All rights reserved.
             </t>""",
             """<t>
             This document is subject to BCP 78 and the IETF Trust's Legal
@@ -73,7 +73,7 @@ boilerplate_tlp = {
         "n/a": [
             """<t>
             Copyright (c) {year} IETF Trust and the persons identified as
-            the document authors.  All rights reserved. 
+            the document authors.  All rights reserved.
             </t>""",
             """<t>
             This document is subject to BCP 78 and the IETF Trust's Legal
@@ -127,14 +127,11 @@ boilerplate_tlp = {
         ],
         "IETF": [
             """<t>
-            Copyright (c) {year} IETF Trust and the persons identified as the document
+            Copyright (c) {year} PACT Consortium and the persons identified as the document
             authors. All rights reserved.
             </t>""",
             """<t>
-            This document is subject to BCP 78 and the IETF Trust's Legal
-            Provisions Relating to IETF Documents
-            (http://trustee.ietf.org/license-info) in effect on the date of
-            publication of this document. Please review these documents carefully,
+            Please review these documents carefully,
             as they describe your rights and restrictions with respect to this
             document. Code Components extracted from this document must include
             Simplified BSD License text as described in Section 4.e of the Trust
