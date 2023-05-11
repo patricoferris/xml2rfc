@@ -33,7 +33,7 @@ from xml2rfc.writers.base import default_options, BaseV3Writer, RfcWriterError
 from xml2rfc.uniscripts import is_script
 from xml2rfc.util.date import extract_date, augment_date, format_date, format_date_iso, get_expiry_date
 from xml2rfc.util.name import ( full_author_name_expansion, short_author_role,
-                                ref_author_name_first, ref_author_name_last, 
+                                ref_author_name_first, ref_author_name_last,
                                 short_author_name_set, full_author_name_set,
                                 short_org_name_set, full_org_name, )
 from xml2rfc.util.postal import ( get_normalized_address_info, address_hcard_properties,
@@ -226,7 +226,7 @@ def get_bidi_alignment(address):
                     if dir in ['R', 'AL']:
                         return 'right'
     return 'left'
-    
+
 # ------------------------------------------------------------------------------
 
 class HtmlWriter(BaseV3Writer):
@@ -237,7 +237,7 @@ class HtmlWriter(BaseV3Writer):
         self.duplicate_html_ids = set()
         self.filename = None
         self.refname_mapping = self.get_refname_mapping()
-            
+
     def get_tags_with_anchor(self):
         anchor_nodes = self.schema.xpath("//x:define/x:element//x:attribute[@name='anchor']", namespaces=namespaces)
         element_nodes = set()
@@ -262,11 +262,11 @@ class HtmlWriter(BaseV3Writer):
         if html_tree is None:
             html_tree = self.html_tree()
         # 6.1.  DOCTYPE
-        # 
+        #
         #    The DOCTYPE of the document is "html", which declares that the
         #    document is compliant with HTML5.  The document will start with
         #    exactly this string:
-        # 
+        #
         #    <!DOCTYPE html>
         html = lxml.etree.tostring(html_tree, method='html', encoding='unicode', pretty_print=True, doctype="<!DOCTYPE html>")
         html = re.sub(r'[\x00-\x09\x0B-\x1F]+', ' ', html)
@@ -375,7 +375,7 @@ class HtmlWriter(BaseV3Writer):
 
     def part_of_table_of_contents(self, e):
         return( len(e.xpath('ancestor::*[contains(@class, "toc")]')) > 0 )
-    
+
     def maybe_add_pilcrow(self, e, first=False):
         if not self.contains_pilcrow_in_sub_element(e) and not self.part_of_table_of_contents(e):
             id = e.get('id')
@@ -401,7 +401,7 @@ class HtmlWriter(BaseV3Writer):
     def render_rfc(self, h, x):
         self.part = x.tag
     # 6.2.  Root Element
-    # 
+    #
     #    The root element of the document is <html>.  This element includes a
     #    "lang" attribute, whose value is a language tag, as discussed in
     #    [RFC5646], that describes the natural language of the document.  The
@@ -410,7 +410,7 @@ class HtmlWriter(BaseV3Writer):
     #    element's <seriesInfo> element's "name" attributes (separated by
     #    spaces; see Section 2.47.3 of [RFC7991]), allowing CSS to style RFCs
     #    and Internet-Drafts differently from one another (if needed):
-    # 
+    #
     #    <html lang="en" class="RFC">
 
         classes = ' '.join( i.get('name') for i in x.xpath('./front/seriesInfo') )
@@ -419,20 +419,20 @@ class HtmlWriter(BaseV3Writer):
         self.html_root = html
 
     # 6.3.  <head> Element
-    # 
+    #
     #    The root <html> will contain a <head> element that contains the
     #    following elements, as needed.
 
         head = add.head(html, None)
 
     # 6.3.1.  Charset Declaration
-    # 
+    #
     #    In order to be correctly processed by browsers that load the HTML
     #    using a mechanism that does not provide a valid content-type or
     #    charset (such as from a local file system using a "file:" URL), the
     #    HTML <head> element contains a <meta> element, whose "charset"
     #    attribute value is "utf-8":
-    # 
+    #
     #    <meta charset="utf-8">
 
         add.meta(head, None, charset='utf-8')
@@ -440,7 +440,7 @@ class HtmlWriter(BaseV3Writer):
         add.meta(head, None, name="viewport", content="initial-scale=1.0")
 
     # 6.3.2.  Document Title
-    # 
+    #
     #    The contents of the <title> element from the XML source will be
     #    placed inside an HTML <title> element in the header.
 
@@ -451,9 +451,9 @@ class HtmlWriter(BaseV3Writer):
         add.title(head, None, text)
 
     # 6.3.3.  Document Metadata
-    # 
+    #
     #    The following <meta> elements will be included:
-    # 
+    #
     #    o  author - one each for the each of the "fullname"s and
     #       "asciiFullname"s of all of the <author>s from the <front> of the
     #       XML source
@@ -473,7 +473,7 @@ class HtmlWriter(BaseV3Writer):
 
         generator = "%s %s" % (xml2rfc.NAME, xml2rfc.__version__)
         add.meta(head, None, name='generator', content=generator)
-        
+
     #    o  keywords - comma-separated <keyword>s from the XML source
 
         for keyword in x.xpath('./front/keyword'):
@@ -493,56 +493,61 @@ class HtmlWriter(BaseV3Writer):
             versions.tail = '\n'
             head.append(versions)
 
+
     #    For example:
-    # 
+    #
     #    <meta name="author" content="Joe Hildebrand">
     #    <meta name="author" content="JOE HILDEBRAND">
     #    <meta name="author" content="Heather Flanagan">
     #    <meta name="description" content="This document defines...">
     #    <meta name="generator" content="xmljade v0.2.4">
     #    <meta name="keywords" content="html,css,rfc">
-    # 
+    #
     #    Note: the HTML <meta> tag does not contain a closing slash.
-    # 
+    #
     # 6.3.4.  Link to XML Source
-    # 
+    #
     #    The <head> element contains a <link> tag, with "rel" attribute of
     #    "alternate", "type" attribute of "application/rfc+xml", and "href"
     #    attribute pointing to the prepared XML source that was used to
     #    generate this document.
-    # 
+    #
     #    <link rel="alternate" type="application/rfc+xml" href="source.xml">
 
         add.link(head, None, href=self.xmlrfc.source, rel='alternate', type='application/rfc+xml')
 
+        # HACK: Mathjax
+        add.script(head, None, src="https://polyfill.io/v3/polyfill.min.js?features=es6", type="application/javascript")
+        add.script(head, None, src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js", type="application/javascript")
+
     # 6.3.5.  Link to License
-    # 
+    #
     #    The <head> element contains a <link> tag, with "rel" attribute of
     #    "license" and "href" attribute pointing to the an appropriate
     #    copyright license for the document.
-    # 
+    #
     #    <link rel="license"
     #       href="https://trustee.ietf.org/trust-legal-provisions.html">
 
         add.link(head, None, href="#copyright", rel='license')
 
     # 6.3.6.  Style
-    # 
+    #
     #    The <head> element contains an embedded CSS in a <style> element.
     #    The styles in the style sheet are to be set consistently between
     #    documents by the RFC Editor, according to the best practices of the
     #    day.
-    # 
+    #
     #    To ensure consistent formatting, individual style attributes should
     #    not be used in the main portion of the document.
-    # 
+    #
     #    Different readers of a specification will desire different formatting
     #    when reading the HTML versions of RFCs.  To facilitate this, the
     #    <head> element also includes a <link> to a style sheet in the same
     #    directory as the HTML file, named "rfc-local.css".  Any formatting in
     #    the linked style sheet will override the formatting in the included
     #    style sheet.  For example:
-    # 
+    #
     #    <style>
     #      body {}
     #      ...
@@ -550,7 +555,7 @@ class HtmlWriter(BaseV3Writer):
     #    <link rel="stylesheet" type="text/css" href="rfc-local.css">
 
         data_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
-        
+
         css = None
         self.css_js = os.path.join(data_dir, 'xml2rfc.js')
         if self.options.css:
@@ -578,7 +583,7 @@ class HtmlWriter(BaseV3Writer):
             add.link(head, None, href="rfc-local.css", rel="stylesheet", type="text/css")
 
     # 6.3.7.  Links
-    # 
+    #
     #    Each <link> element from the XML source is copied into the HTML
     #    header.  Note: the HTML <link> element does not include a closing
     #    slash.
@@ -622,14 +627,14 @@ class HtmlWriter(BaseV3Writer):
             s.tail = '\n'
 
     # 6.4.  Page Headers and Footers
-    # 
+    #
     #    In order to simplify printing by HTML renderers that implement
     #    [W3C.WD-css3-page-20130314], a hidden HTML <table> tag of class
     #    "ears" is added at the beginning of the HTML <body> tag, containing
     #    HTML <thead> and <tfoot> tags, each of which contains an HTML <tr>
     #    tag, which contains three HTML <td> tags with class "left", "center",
     #    and "right", respectively.
-    # 
+    #
     #    The <thead> corresponds to the top of the page, the <tfoot> to the
     #    bottom.  The string "[Page]" can be used as a placeholder for the
     #    page number.  In practice, this must always be in the <tfoot>'s right
@@ -683,18 +688,18 @@ class HtmlWriter(BaseV3Writer):
         return html
 
     # 9.1.  <abstract>
-    # 
+    #
     #    The abstract is rendered in a similar fashion to a <section> with
     #    anchor="abstract" and <name>Abstract</name>, but without a section
     #    number.
-    # 
+    #
     #    <section id="abstract">
     #      <h2><a href="#abstract" class="selfRef">Abstract</a></h2>
     #      <p id="s-abstract-1">This document defines...
     #        <a href="#s-abstract-1" class="pilcrow">&para;</a>
     #      </p>
     #    </section>
-    # 
+    #
 
     def render_abstract(self, h, x):
         if self.part == 'front':
@@ -707,7 +712,7 @@ class HtmlWriter(BaseV3Writer):
             return None
 
     # 9.2.  <address>
-    # 
+    #
     #    This element is used in the Authors' Addresses section.  It is
     #    rendered as an HTML <address> tag of class "vcard".  If none of the
     #    descendant XML elements has an "ascii" attribute, the <address> HTML
@@ -719,11 +724,11 @@ class HtmlWriter(BaseV3Writer):
     #    contact information:"), and an HTML <div> tag of class "non-ascii"
     #    (containing the HTML rendering of the non-ASCII variants of each of
     #    the descendant XML elements).
-    # 
+    #
     #    Note: the following example shows some ASCII equivalents that are the
     #    same as their nominal equivalents for clarity; normally, the ASCII
     #    equivalents would not be included for these cases.
-    # 
+    #
     #    <address class="vcard">
     #      <div class="ascii">
     #        <div class="nameRole"><span class="fn">Joe Hildebrand</span>
@@ -746,7 +751,7 @@ class HtmlWriter(BaseV3Writer):
     ## The <address> element will be rendered as a sequence of <div> elements,
     ## each corresponding to a child element of <address>.  Element classes
     ## will be taken from hcard, as specified on http://microformats.org/wiki/hcard
-    ## 
+    ##
     ##   <address class="vcard">
     ##
     ##     <!-- ... name, role, and organization elements ... -->
@@ -777,12 +782,12 @@ class HtmlWriter(BaseV3Writer):
     render_address = skip_renderer
 
     # 9.3.  <annotation>
-    # 
+    #
     #    This element is rendered as the text ", " (a comma and a space)
     #    followed by a <span> of class "annotation" at the end of a
     #    <reference> element, the <span> containing appropriately transformed
     #    elements from the children of the <annotation> tag.
-    # 
+    #
     #     <span class="annotation">Some <em>thing</em>.</span>
     def render_annotation(self, h, x):
         span = add.span(h, x, classes='annotation')
@@ -791,9 +796,9 @@ class HtmlWriter(BaseV3Writer):
         return span
 
     # 9.4.  <area>
-    # 
+    #
     #    Not currently rendered to HTML.
-    # 
+    #
 
     def render_artset(self, h, x):
         preflist = ['svg', 'binary-art', 'ascii-art', ]
@@ -807,7 +812,7 @@ class HtmlWriter(BaseV3Writer):
         return div
 
     # 9.5.  <artwork>
-    # 
+    #
     #    Artwork can consist of either inline text or SVG.  If the artwork is
     #    not inside a <figure> element, a pilcrow (Section 5.2) is included.
     #    Inside a <figure> element, the figure title serves the purpose of the
@@ -819,17 +824,17 @@ class HtmlWriter(BaseV3Writer):
         align = x.get('align', 'left')
 
     # 9.5.1.  Text Artwork
-    # 
+    #
     #    Text artwork is rendered inside an HTML <pre> element, which is
     #    contained by a <div> element for consistency with SVG artwork.  Note
     #    that CDATA blocks are not a part of HTML, so angle brackets and
     #    ampersands (i.e., <, >, and &) must be escaped as &lt;, &gt;, and
     #    &amp;, respectively.
-    # 
+    #
     #    The <div> element will have CSS classes of "artwork", "art-text", and
     #    "art-" prepended to the value of the <artwork> element's "type"
     #    attribute, if it exists.
-    # 
+    #
     #    <div class="artwork art-text art-ascii-art"  id="s-1-2">
     #      <pre>
     #     ______________
@@ -860,21 +865,21 @@ class HtmlWriter(BaseV3Writer):
                 if x.getparent().tag != 'figure':
                     self.maybe_add_pilcrow(div)
                 return div
-            
+
     # 9.5.2.  SVG Artwork
-    # 
+    #
     #    SVG artwork will be included inline.  The SVG is wrapped in a <div>
     #    element with CSS classes "artwork" and "art-svg".
-    # 
+    #
     #    If the SVG "artwork" element is a child of <figure> and the artwork
     #    is specified as align="right", an empty HTML <span> element is added
     #    directly after the <svg> element, in order to get right alignment to
     #    work correctly in HTML rendering engines that do not support the
     #    flex-box model.
-    # 
+    #
     #    Note: the "alt" attribute of <artwork> is not currently used for SVG;
     #    instead, the <title> and <desc> tags are used in the SVG.
-    # 
+    #
     #    <div class="artwork art-svg" id="s-2-17">
     #      <svg width="100" height="100" xmlns="http://www.w3.org/2000/svg">
     #        <desc>Alt text here</desc>
@@ -936,7 +941,7 @@ class HtmlWriter(BaseV3Writer):
                     if svgw and svgh:
                         svg.set('viewBox', '0 0 %s %s' % (svgw, svgh))
                     else:
-                        self.err(x, "Cannot place SVG properly when neither viewBox nor width and height is available") 
+                        self.err(x, "Cannot place SVG properly when neither viewBox nor width and height is available")
                         return None
             except ValueError as e:
                 self.err(x, "Error when calculating SVG size: %s" % e)
@@ -965,16 +970,16 @@ class HtmlWriter(BaseV3Writer):
             self.duplicate_html_ids = self.duplicate_html_ids | dups
 
     # 9.5.3.  Other Artwork
-    # 
+    #
     #    Other artwork will have a "src" attribute that uses the "data" URI
     #    scheme defined in [RFC2397].  Such artwork is rendered in an HTML
     #    <img> element.  Note: the HTML <img> element does not have a closing
     #    slash.
-    # 
+    #
     #    Note: such images are not yet allowed in RFCs even though the format
     #    supports them.  A limited set of "data:" mediatypes for artwork may
     #    be allowed in the future.
-    # 
+    #
     #    <div class="artwork art-logo" id="s-2-58">
     #      <img alt="IETF logo"
     #           src="data:image/gif;charset=utf-8;base64,...">
@@ -995,10 +1000,10 @@ class HtmlWriter(BaseV3Writer):
                 self.maybe_add_pilcrow(div)
 
     # 9.6.  <aside>
-    # 
+    #
     #    This element is rendered as an HTML <aside> element, with all child
     #    content appropriately transformed.
-    # 
+    #
     #    <aside id="s-2.1-2">
     #      <p id="s-2.1-2.1">
     #        A little more than kin, and less than kind.
@@ -1006,11 +1011,11 @@ class HtmlWriter(BaseV3Writer):
     #      </p>
     #    </aside>
     render_aside = default_renderer
-        
 
-    # 
+
+    #
     # 9.7.  <author>
-    # 
+    #
     #    The <author> element is used in several places in the output.
     #    Different rendering is used for each.
     def render_author(self, h, x):
@@ -1019,11 +1024,11 @@ class HtmlWriter(BaseV3Writer):
         p = x.getparent()
 
     # 9.7.1.  Authors in Document Information
-    # 
+    #
     #    As seen in the Document Information at the beginning of the HTML,
     #    each document author is rendered as an HTML <div> tag of class
     #    "author".
-    # 
+    #
     #    Inside the <div class="author"> HTML tag, the author's initials and
     #    surname (or the fullname, if it exists and the others do not) will be
     #    rendered in an HTML <div> tag of class "author-name".  If the
@@ -1036,10 +1041,10 @@ class HtmlWriter(BaseV3Writer):
     #    <div class="author-name"> will also contain the text ", " (comma,
     #    space), followed by an HTML <span> tag of class "editor", which
     #    contains the text "Ed.".
-    # 
+    #
     #    If the <author> element contains an <organization> element, it is
     #    also rendered inside the <div class="author"> HTML tag.
-    # 
+    #
     #    <div class="author">
     #      <div class="author-name">
     #        H. Flanagan,
@@ -1080,11 +1085,11 @@ class HtmlWriter(BaseV3Writer):
             return span
 
     # 9.7.2.  Authors of This Document
-    # 
+    #
     #    As seen in the Authors' Addresses section, at the end of the HTML,
     #    each document author is rendered into an HTML <address> element with
     #    the CSS class "vcard".
-    # 
+    #
     #    The HTML <address> element will contain an HTML <div> with CSS class
     #    "nameRole".  That div will contain an HTML <span> element with CSS
     #    class "fn" containing the value of the "fullname" attribute of the
@@ -1092,17 +1097,17 @@ class HtmlWriter(BaseV3Writer):
     #    containing the value of the "role" attribute of the <author> XML
     #    element (if there is a role).  Parentheses will surround the <span
     #    class="role">, if it exists.
-    # 
+    #
     #    <address class="vcard">
     #      <div class="nameRole">
     #        <span class="fn">Joe Hildebrand</span>
     #        (<span class="role">editor</span>)
     #      </div>
     #      ...
-    # 
+    #
     #    After the name, the <organization> and <address> child elements of
     #    the author are rendered inside the HTML <address> tag.
-    # 
+    #
     #    When the <author> element, or any of its descendant elements, has any
     #    attribute that starts with "ascii", all of the author information is
     #    displayed twice.  The first version is wrapped in an HTML <div> tag
@@ -1115,7 +1120,7 @@ class HtmlWriter(BaseV3Writer):
     #    exist.  Between these two HTML <div>s, a third <div> is inserted,
     #    with class "alternative-contact", containing the text "Alternate
     #    contact information:".
-    # 
+    #
     #    <address class="vcard">
     #      <div class="ascii">
     #        <div class="nameRole">
@@ -1160,12 +1165,12 @@ class HtmlWriter(BaseV3Writer):
             return addr
 
     # 9.7.3.  Authors of References
-    # 
+    #
     #    In the output generated from a reference element, author tags are
     #    rendered inside an HTML <span> element with CSS class "refAuthor".
     #    See Section 4.8.6.2 of [RFC7322] for guidance on how author names are
     #    to appear.
-    # 
+    #
     #    <span class="refAuthor">Flanagan, H.</span> and
     #    <span class="refAuthor">N. Brownlee</span>
         elif self.part == 'references':
@@ -1229,15 +1234,15 @@ class HtmlWriter(BaseV3Writer):
     render_contact = render_author
 
     # 9.8.  <back>
-    # 
+    #
     #    If there is exactly one <references> child, render that child in a
     #    similar way to a <section>.  If there are more than one <references>
     #    children, render as a <section> whose name is "References",
     #    containing a <section> for each <references> child.
-    # 
+    #
     #    After any <references> sections, render each <section> child of
     #    <back> as an appendix.
-    # 
+    #
     #    <section id="n-references">
     #      <h2 id="s-2">
     #        <a class="selfRef" href="#s-2">2.</a>
@@ -1267,30 +1272,30 @@ class HtmlWriter(BaseV3Writer):
     render_back = skip_renderer
 
     # 9.9.  <bcp14>
-    # 
+    #
     #    This element marks up words like MUST and SHOULD [BCP14] with an HTML
     #    <span> element with the CSS class "bcp14".
-    # 
+    #
     #    You <span class="bcp14">MUST</span> be joking.
     def render_bcp14(self, h, x):
         return add.span(h, x, classes='bcp14')
 
     # 9.10.  <blockquote>
-    # 
+    #
     #    This element renders in a way similar to the HTML <blockquote>
     #    element.  If there is a "cite" attribute, it is copied to the HTML
     #    "cite" attribute.  If there is a "quoteFrom" attribute, it is placed
     #    inside a <cite> element at the end of the quote, with an <a> element
     #    surrounding it (if there is a "cite" attribute), linking to the cited
     #    URL.
-    # 
+    #
     #    If the <blockquote> does not contain another element that gets a
     #    pilcrow (Section 5.2), a pilcrow is added.
-    # 
+    #
     #    Note that the "&mdash;" at the beginning of the <cite> element should
     #    be a proper emdash, which is difficult to show in the display of the
     #    current format.
-    # 
+    #
     #    <blockquote id="s-1.2-1"
     #      cite="http://...">
     #      <p id="s-1.2-2">Four score and seven years ago our fathers
@@ -1317,12 +1322,12 @@ class HtmlWriter(BaseV3Writer):
         return quote
 
     # 9.11.  <boilerplate>
-    # 
+    #
     #    The Status of This Memo and the Copyright statement, together
     #    commonly referred to as the document boilerplate, appear after the
     #    Abstract.  The children of the input <boilerplate> element are
     #    treated in a similar fashion to unnumbered sections.
-    # 
+    #
     #    <section id="status-of-this-memo">
     #      <h2 id="s-boilerplate-1">
     #        <a href="#status-of-this-memo" class="selfRef">
@@ -1336,19 +1341,19 @@ class HtmlWriter(BaseV3Writer):
     render_boilerplate = skip_renderer
 
     # 9.12.  <br>
-    # 
+    #
     #    This element is directly rendered as its HTML counterpart.  Note: in
     #    HTML, <br> does not have a closing slash.
     ## Removed from schema
     def render_br(self, h, x):
         return add.br(h, x)
 
-    # 
+    #
     # 9.13.  <city>
-    # 
+    #
     #    This element is rendered as a <span> element with CSS class
     #    "locality".
-    # 
+    #
     #    <span class="locality">Guilford</span>
     def render_city(self, h, x):
         return self.address_line_renderer(h, x, classes='locality')
@@ -1356,12 +1361,12 @@ class HtmlWriter(BaseV3Writer):
     def render_cityarea(self, h, x):
         return self.address_line_renderer(h, x, classes='locality')
 
-    # 
+    #
     # 9.14.  <code>
-    # 
+    #
     #    This element is rendered as a <span> element with CSS class "postal-
     #    code".
-    # 
+    #
     #    <span class="postal-code">GU16 7HF<span>
     def render_code(self, h, x):
         return self.address_line_renderer(h, x, classes='postal-code')
@@ -1370,21 +1375,21 @@ class HtmlWriter(BaseV3Writer):
         return self.address_line_renderer(h, x, classes='postal-code')
 
     # 9.15.  <country>
-    # 
+    #
     #    This element is rendered as a <div> element with CSS class "country-
     #    name".
-    # 
+    #
     #    <div class="country-name">England</div>
     def render_country(self, h, x):
         return self.address_line_renderer(h, x, classes='country-name')
 
     # 9.16.  <cref>
-    # 
+    #
     #    This element is rendered as a <span> element with CSS class "cref".
     #    Any anchor is copied to the "id" attribute.  If there is a source
     #    given, it is contained inside the "cref" <span> element with another
     #    <span> element of class "crefSource".
-    # 
+    #
     #    <span class="cref" id="crefAnchor">Just a brief comment
     #    about something that we need to remember later.
     #    <span class="crefSource">--life</span></span>
@@ -1400,17 +1405,17 @@ class HtmlWriter(BaseV3Writer):
             return span
 
     # 9.17.  <date>
-    # 
+    #
     #    This element is rendered as the HTML <time> element.  If the "year",
     #    "month", or "day" attribute is included on the XML element, an
     #    appropriate "datetime" element will be generated in HTML.
-    # 
+    #
     #    If this date is a child of the document's <front> element, it gets
     #    the CSS class "published".
-    # 
+    #
     #    If this date is inside a <reference> element, it gets the CSS class
     #    "refDate".
-    # 
+    #
     #    <time datetime="2014-10" class="published">October 2014</time>
     def render_date(self, h, x):
         have_date = x.get('day') or x.get('month') or x.get('year')
@@ -1441,7 +1446,7 @@ class HtmlWriter(BaseV3Writer):
         return time
 
     # 9.18.  <dd>
-    # 
+    #
     #    This element is directly rendered as its HTML counterpart.
     def render_dd(self, h, x):
         indent = x.getparent().get('indent') or '3'
@@ -1456,19 +1461,19 @@ class HtmlWriter(BaseV3Writer):
         return dd
 
     # 9.19.  <displayreference>
-    # 
+    #
     #    This element does not affect the HTML output, but it is used in the
     #    generation of the <reference>, <referencegroup>, <relref>, and <xref>
     #    elements.
     render_displayreference = null_renderer
 
     # 9.20.  <dl>
-    # 
+    #
     #    This element is directly rendered as its HTML counterpart.
-    # 
+    #
     #    If the hanging attribute is "false", add the "dlParallel" class, else
     #    add the "dlHanging" class.
-    # 
+    #
     #    If the spacing attribute is "compact", add the "dlCompact" class.
     def render_dl(self, h, x):
         newline = x.get('newline')
@@ -1490,24 +1495,24 @@ class HtmlWriter(BaseV3Writer):
         return dl
 
     # 9.21.  <dt>
-    # 
+    #
     #    This element is directly rendered as its HTML counterpart.
     render_dt = default_renderer
 
-    # 
+    #
     # 9.22.  <em>
-    # 
+    #
     #    This element is directly rendered as its HTML counterpart.
     render_em = default_renderer
 
     # 9.23.  <email>
-    # 
+    #
     #    This element is rendered as an HTML <div> containing the string
     #    "Email:" and an HTML <a> element with the "href" attribute set to the
     #    equivalent "mailto:" URI, a CSS class of "email", and the contents
     #    set to the email address.  If this is the version of the address with
     #    ASCII, the "ascii" attribute is preferred to the element text.
-    # 
+    #
     #    <div>
     #      <span>Email:</span>
     #      <a class="email" href="mailto:joe@example.com">joe@example.com</a>
@@ -1533,13 +1538,13 @@ class HtmlWriter(BaseV3Writer):
                         )
             return div
 
-    # 
+    #
     # 9.24.  <eref>
-    # 
+    #
     #    This element is rendered as an HTML <a> element, with the "href"
     #    attribute set to the value of the "target" attribute and the CSS
     #    class of "eref".
-    # 
+    #
     #    <a href="https://..." class="eref">the text</a>
     def render_eref(self, h, x):
         target = x.get('target')
@@ -1556,13 +1561,13 @@ class HtmlWriter(BaseV3Writer):
         return hh
 
     # 9.25.  <figure>
-    # 
+    #
     #    This element renders as the HTML <figure> element, containing the
     #    artwork or sourcecode indicated and an HTML <figcaption> element.
     #    The <figcaption> element will contain an <a> element around the
     #    figure number.  It will also contain another <a> element with CSS
     #    class "selfRef" around the figure name, if a name was given.
-    # 
+    #
     #    <figure id="f-1">
     #      ...
     #      <figcaption>
@@ -1592,19 +1597,19 @@ class HtmlWriter(BaseV3Writer):
         return figure
 
     # 9.26.  <front>
-    # 
+    #
     #    See "Document Information" (Section 6.5) for information on this
     #    element.
     def render_front(self, h, x):
         if self.part == 'front':
             # 6.5.  Document Information
-            # 
+            #
             #    Information about the document as a whole will appear as the first
             #    child of the HTML <body> element, embedded in an HTML <dl> element
             #    with id="identifiers".  The defined terms in the definition list are
             #    "Workgroup:", "Series:", "Status:", "Published:", and "Author:" or
             #    "Authors:" (as appropriate).  For example:
-            # 
+            #
             #    <dl id="identifiers">
             #      <dt>Workgroup:</dt>
             #        <dd class="workgroup">rfc-interest</dd>
@@ -1630,11 +1635,11 @@ class HtmlWriter(BaseV3Writer):
             #          </div>
             #        </dd>
             #    </dl>
-            # 
+            #
 
             # Now, a text format RFC has the following information, optionals in
             # parentheses:
-            # 
+            #
             # If RFC:
             #   * <Stream Name>
             #   * Request for Comments: <Number>
@@ -1753,13 +1758,13 @@ class HtmlWriter(BaseV3Writer):
             self.default_renderer(h, x)
         else:
             self.err(x, "Did not expect to be asked to render <%s> while in <%s> (self.part: %s)" % (x.tag, x.getparent().tag, self.part))
-        
+
 
     # 9.27.  <iref>
-    # 
+    #
     #    This element is rendered as an empty <> tag of class "iref", with an
     #    "id" attribute consisting of the <iref> element's "irefid" attribute:
-    # 
+    #
     #    <span class="iref" id="s-Paragraphs-first-1"/>
     def render_iref(self, h, x):
         span = add.span(None, x, classes='iref', id=x.get('pn'))
@@ -1770,18 +1775,18 @@ class HtmlWriter(BaseV3Writer):
         return span
 
     # 9.28.  <keyword>
-    # 
+    #
     #    Each <keyword> element renders its text into the <meta> keywords in
     #    the document's header, separated by commas.
-    # 
+    #
     #    <meta name="keywords" content="html,css,rfc">
-    # 
+    #
     # 9.29.  <li>
-    # 
+    #
     #    This element is rendered as its HTML counterpart.  However, if there
     #    is no contained element that has a pilcrow (Section 5.2) attached, a
     #    pilcrow is added.
-    # 
+    #
     #    <li id="s-2-7">Item <a href="#s-2-7" class="pilcrow">&para;</a></li>
     def render_li_ul(self, h, x):
         indent = x.getparent().get('indent') or '3'
@@ -1808,14 +1813,14 @@ class HtmlWriter(BaseV3Writer):
         return li
 
     # 9.30.  <link>
-    # 
+    #
     #    This element is rendered as its HTML counterpart, in the HTML header.
     def render_link(self, h, x):
         link = add.link(h, x, href=x.get('href'), rel=x.get('rel'))
         return link
-        
+
     # 9.31.  <middle>
-    # 
+    #
     #    This element does not add any direct output to HTML.
     render_middle = skip_renderer
 
@@ -1839,7 +1844,7 @@ class HtmlWriter(BaseV3Writer):
     ##
 
     # 9.32.  <name>
-    # 
+    #
     #    This element is never rendered directly; it is only rendered when
     #    considering a parent element, such as <figure>, <references>,
     #    <section>, or <table>.
@@ -1882,12 +1887,12 @@ class HtmlWriter(BaseV3Writer):
 
 
     # 9.33.  <note>
-    # 
+    #
     #    This element is rendered like a <section> element, but without a
     #    section number and with the CSS class of "note".  If the
     #    "removeInRFC" attribute is set to "yes", the generated <div> element
     #    will also include the CSS class "rfcEditorRemove".
-    # 
+    #
     #    <section id="s-note-1" class="note rfcEditorRemove">
     #      <h2>
     #        <a href="#n-editorial-note" class="selfRef">Editorial Note</a>
@@ -1907,13 +1912,13 @@ class HtmlWriter(BaseV3Writer):
         return section
 
     # 9.34.  <ol>
-    # 
+    #
     #    The output created from an <ol> element depends upon the "style"
     #    attribute.
-    # 
+    #
     #    If the "spacing" attribute has the value "compact", a CSS class of
     #    "olCompact" will be added.
-    # 
+    #
     #    The group attribute is not copied; the input XML should have start
     #    values added by a prep tool for all grouped <ol> elements.
     def render_ol(self, h, x):
@@ -1930,12 +1935,12 @@ class HtmlWriter(BaseV3Writer):
         return ol
 
     # 9.34.1.  Percent Styles
-    # 
+    #
     #    If the style attribute includes the character "%", the output is a
     #    <dl> tag with the class "olPercent".  Each contained <li> element is
     #    emitted as a <dt>/<dd> pair, with the generated label in the <dt> and
     #    the contents of the <li> in the <dd>.
-    # 
+    #
     #    <dl class="olPercent">
     #      <dt>Requirement xviii:</dt>
     #      <dd>Wheels on a big rig</dd>
@@ -1957,10 +1962,10 @@ class HtmlWriter(BaseV3Writer):
         return dt, dd
 
     # 9.34.2.  Standard Styles
-    # 
+    #
     #    For all other styles, an <ol> tag is emitted, with any "style"
     #    attribute turned into the equivalent HTML attribute.
-    # 
+    #
     #    <ol class="compact" type="I" start="18">
     #      <li>Wheels on a big rig</li>
     #    </ol>
@@ -1977,14 +1982,14 @@ class HtmlWriter(BaseV3Writer):
         return li
 
     # 9.35.  <organization>
-    # 
+    #
     #    This element is rendered as an HTML <div> tag with CSS class "org".
-    # 
+    #
     #    If the element contains the "ascii" attribute, the organization name
     #    is rendered twice: once with the non-ASCII version wrapped in an HTML
     #    <span> tag of class "non-ascii" and then as the ASCII version wrapped
     #    in an HTML <span> tag of class "ascii" wrapped in parentheses.
-    # 
+    #
     #    <div class="org">
     #      <span class="non-ascii">Test Org</span>
     #      (<span class="ascii">TEST ORG</span>)
@@ -1992,13 +1997,13 @@ class HtmlWriter(BaseV3Writer):
     render_organization = null_renderer # handled in render_address
 
     # 9.36.  <phone>
-    # 
+    #
     #    This element is rendered as an HTML <div> tag containing the string
     #    "Phone:" (wrapped in a span), an HTML <a> tag with CSS class "tel"
     #    containing the phone number (and an href with a corresponding "tel:"
     #    URI), and an HTML <span> with CSS class "type" containing the string
     #    "VOICE".
-    # 
+    #
     #    <div>
     #      <span>Phone:</span>
     #      <a class="tel" href="tel:+1-720-555-1212">+1-720-555-1212</a>
@@ -2007,7 +2012,7 @@ class HtmlWriter(BaseV3Writer):
     def render_phone(self, h, x):
         # The content of <span class="type">VOICE</span> seems to violate the
         # vcard types (they identify things like 'Home', 'Work', etc) and
-        # will be skipped.  The 
+        # will be skipped.  The
         if not x.text:
             return None
         value = x.text.strip() if x.text else ''
@@ -2021,30 +2026,30 @@ class HtmlWriter(BaseV3Writer):
             return div
 
     # 9.37.  <postal>
-    # 
+    #
     #    This element renders as an HTML <div> with CSS class "adr", unless it
     #    contains one or more <postalLine> child elements; in which case, it
     #    renders as an HTML <pre> element with CSS class "label".
-    # 
+    #
     #    When there is no <postalLine> child, the following child elements are
     #    rendered into the HTML:
-    # 
+    #
     #    o  Each <street> is rendered
-    # 
+    #
     #    o  A <div> that includes:
-    # 
+    #
     #       *  The rendering of all <city> elements
-    # 
+    #
     #       *  A comma and a space: ", "
-    # 
+    #
     #       *  The rendering of all <region> elements
-    # 
+    #
     #       *  Whitespace
-    # 
+    #
     #       *  The rendering of all <code> elements
-    # 
+    #
     #    o  The rendering of all <country> elements
-    # 
+    #
     #    <div class="adr">
     #      <div class="street-address">1 Main Street</div>
     #      <div class="street-address">Suite 1</div>
@@ -2059,13 +2064,13 @@ class HtmlWriter(BaseV3Writer):
     ##  Much of the description above is much too americentric, and also
     ##  conflicts with hCard.  Examples from hCard will be used instead,
     ##  and addresses rendered in a format appropriate for their country.
-    ##  
+    ##
     ##   <span class="adr">
     ##      <span class="street-address">12 rue Danton</span>
     ##      <span class="postal-code">94270</span>
     ##      <span class="locality">Le Kremlin-Bicetre</span>
     ##      <span class="country-name">France</span>
-    ##   </span>    
+    ##   </span>
     def render_postal(self, h, x):
         latin = h.get('class') == 'ascii'
         adr = get_normalized_address_info(self, x, latin=latin)
@@ -2083,27 +2088,27 @@ class HtmlWriter(BaseV3Writer):
                 self.render(h, c)
 
     # 9.38.  <postalLine>
-    # 
+    #
     #    This element renders as the text contained by the element, followed
     #    by a newline.  However, the last <postalLine> in a given <postal>
     #    element should not be followed by a newline.  For example:
-    # 
+    #
     #    <postal>
     #      <postalLine>In care of:</postalLine>
     #      <postalLine>Computer Sciences Division</postalLine>
     #    </postal>
-    # 
+    #
     #    Would be rendered as:
-    # 
+    #
     #    <pre class="label">In care of:
     #    Computer Sciences Division</pre>
     def render_postalline(self, h, x):
         return self.address_line_renderer(h, x, classes='extended-address')
 
     # 9.39.  <refcontent>
-    # 
+    #
     #    This element renders as an HTML <span> with CSS class "refContent".
-    # 
+    #
     #    <span class="refContent">Self-published pamphlet</span>
     def render_refcontent(self, h, x):
         span = add.span(h, x, classes='refContent')
@@ -2113,14 +2118,14 @@ class HtmlWriter(BaseV3Writer):
 
 
     # 9.40.  <reference>
-    # 
+    #
     #    If the parent of this element is not a <referencegroup>, this element
     #    will render as a <dt> <dd> pair with the defined term being the
     #    reference "anchor" attribute surrounded by square brackets and the
     #    definition including the correct set of bibliographic information as
     #    specified by [RFC7322].  The <dt> element will have an "id" attribute
     #    of the reference anchor.
-    # 
+    #
     #    <dl class="reference">
     #      <dt id="RFC5646">[RFC5646]</dt>
     #      <dd>
@@ -2131,11 +2136,11 @@ class HtmlWriter(BaseV3Writer):
     #        ...
     #      </dd>
     #    </dl>
-    # 
+    #
     #    If the child of a <referencegroup>, this element renders as a <div>
     #    of class "refInstance" whose "id" attribute is the value of the
     #    <source> element's "anchor" attribute.
-    # 
+    #
     #    <div class="refInstance" id="RFC5730">
     #      ...
     #    </div>
@@ -2160,7 +2165,7 @@ class HtmlWriter(BaseV3Writer):
             for c in x.iterdescendants(ctag):
                 if p.tag == 'referencegroup' and c.tag == 'seriesInfo' and c.get('name') == 'DOI':
                     # Don't render DOI within a reference group
-                    continue              
+                    continue
                 if len(inner):
                     inner[-1].tail = ', '
                 self.render(inner, c)
@@ -2179,12 +2184,12 @@ class HtmlWriter(BaseV3Writer):
         return outer
 
     # 9.41.  <referencegroup>
-    # 
+    #
     #    A <referencegroup> is translated into a <dt> <dd> pair, with the
     #    defined term being the referencegroup "anchor" attribute surrounded
     #    by square brackets, and the definition containing the translated
     #    output of all of the child <reference> elements.
-    # 
+    #
     #    <dt id="STD69">[STD69]</dt>
     #    <dd>
     #      <div class="refInstance" id="RFC5730">
@@ -2211,12 +2216,12 @@ class HtmlWriter(BaseV3Writer):
         return dt, dd
 
     # 9.42.  <references>
-    # 
+    #
     #    If there is at exactly one <references> element, a section is added
     #    to the document, continuing with the next section number after the
     #    last top-level <section> in <middle>.  The <name> element of the
     #    <references> element is used as the section name.
-    # 
+    #
     #    <section id="n-my-references">
     #      <h2 id="s-3">
     #        <a href="#s-3" class="selfRef">3.</a>
@@ -2224,14 +2229,14 @@ class HtmlWriter(BaseV3Writer):
     #      </h2>
     #      ...
     #    </section>
-    # 
+    #
     #    If there is more than one <references> element, an HTML <section>
     #    element is created to contain a subsection for each of the
     #    <references>.  The section number will be the next section number
     #    after the last top-level <section> in <middle>.  The name of this
     #    section will be "References", and its "id" attribute will be
     #    "n-references".
-    # 
+    #
     #    <section id="n-references">
     #      <h2 id="s-3">
     #        <a href="#s-3" class="selfRef">3.</a>
@@ -2257,18 +2262,18 @@ class HtmlWriter(BaseV3Writer):
             self.render(hh, c)
         return section
 
-    # 
+    #
     # 9.43.  <region>
-    # 
+    #
     #    This element is rendered as a <span> tag with CSS class "region".
-    # 
+    #
     #    <span class="region">Colorado</span>
     def render_region(self, h, x):
         return self.address_line_renderer(h, x, classes='region')
 
-    # 
+    #
     # 9.44.  <relref>
-    # 
+    #
     #    This element is rendered as an HTML <a> tag with CSS class "relref"
     #    and "href" attribute of the "derivedLink" attribute of the element.
     #    Different values of the "displayFormat" attribute cause the text
@@ -2286,47 +2291,47 @@ class HtmlWriter(BaseV3Writer):
 
 
     # 9.44.1.  displayFormat='of'
-    # 
+    #
     #    The output is an <a class='relref'> HTML tag, with contents of
     #    "Section " and the value of the "section" attribute.  This is
     #    followed by the word "of" (surrounded by whitespace).  This is
     #    followed by the <a class='xref'> HTML tag (surrounded by square
     #    brackets).
-    # 
+    #
     #    For example, with an input of:
-    # 
+    #
     #    See <relref section="2.3" target="RFC9999" displayFormat="of"
     #    derivedLink="http://www.rfc-editor.org/info/rfc9999#s-2.3"/>
     #    for an overview.
-    # 
+    #
     #    The HTML generated will be:
-    # 
+    #
     #    See <a class="relref"
     #    href="http://www.rfc-editor.org/info/rfc9999#s-2.3">Section
     #    2.3</a> of [<a class="xref" href="#RFC9999">RFC9999</a>]
     #    for an overview.
-    # 
+    #
     # 9.44.2.  displayFormat='comma'
-    # 
+    #
     #    The output is an <a class='xref'> HTML tag (wrapped by square
     #    brackets), followed by a comma (","), followed by whitespace,
     #    followed by an <a class='relref'> HTML tag, with contents of
     #    "Section " and the value of the "section" attribute.
-    # 
+    #
     #    For example, with an input of:
-    # 
+    #
     #    See <relref section="2.3" target="RFC9999" displayFormat="comma"
     #    derivedLink="http://www.rfc-editor.org/info/rfc9999#s-2.3"/>,
     #    for an overview.
-    # 
+    #
     #    The HTML generated will be:
-    # 
+    #
     #    See [<a class="xref" href="#RFC9999">RFC9999</a>], <a class="relref"
     #    href="http://www.rfc-editor.org/info/rfc9999#s-2.3">Section 2.3</a>,
     #    for an overview.
-    # 
+    #
     # 9.44.3.  displayFormat='parens'
-    # 
+    #
     #    The output is an <a> element with "href" attribute whose value is the
     #    value of the "target" attribute prepended by "#", and whose content
     #    is the value of the "target" attribute; the entire element is wrapped
@@ -2335,52 +2340,52 @@ class HtmlWriter(BaseV3Writer):
     #    "derivedLink" attribute and whose content is the value of the
     #    "derivedRemoteContent" attribute; the entire element is wrapped in
     #    parentheses.
-    # 
+    #
     #    For example, if Section 2.3 of RFC 9999 has the title "Protocol
     #    Overview", for an input of:
-    # 
+    #
     #    See <relref section="2.3" target="RFC9999" displayFormat="parens"
     #    derivedLink="http://www.rfc-editor.org/info/rfc9999#s-2.3"
     #    derivedRemoteContent="Section 2.3"/> for an overview.
-    # 
+    #
     #    The HTML generated will be:
-    # 
+    #
     #    See [<a class="relref" href="#RFC9999">RFC9999</a>]
     #    (<a class="relref"
     #    href="http://www.rfc-editor.org/info/rfc9999#s-2.3">Section
     #    2.3</a>) for an overview.
-    # 
+    #
     # 9.44.4.  displayFormat='bare'
-    # 
+    #
     #    The output is an <a> element whose "href" attribute is the value of
     #    the "derivedLink" attribute and whose content is the value of the
     #    "derivedRemoteContent" attribute.
-    # 
+    #
     #    For this input:
-    # 
+    #
     #    See <relref section="2.3" target="RFC9999" displayFormat="bare"
     #    derivedLink="http://www.rfc-editor.org/info/rfc9999#s-2.3"
     #    derivedRemoteContent="Section 2.3"/> and ...
-    # 
+    #
     #    The HTML generated will be:
-    # 
+    #
     #    See <a class="relref"
     #    href="http://www.rfc-editor.org/info/rfc9999#s-2.3">Section
     #    2.3</a> and ...
 
     # 9.45.  <rfc>
-    # 
+    #
     #    Various attributes of this element are represented in different parts
     #    of the HTML document.
 
     # 9.46.  <section>
-    # 
+    #
     #    This element is rendered as an HTML <section> element, containing an
     #    appropriate level HTML heading element (<h2>-<h6>).  That heading
     #    element contains an <a> element around the part number (pn), if
     #    applicable (for instance, <abstract> does not get a section number).
     #    Another <a> element is included with the section's name.
-    # 
+    #
     #    <section id="intro">
     #      <h2 id="s-1">
     #        <a href="#s-1" class="selfRef">1.</a>
@@ -2400,10 +2405,10 @@ class HtmlWriter(BaseV3Writer):
 
 
     # 9.47.  <seriesInfo>
-    # 
+    #
     #    This element is rendered in an HTML <span> element with CSS name
     #    "seriesInfo".
-    # 
+    #
     #    <span class="seriesInfo">RFC 5646</span>
     ## This is different from what's shown in the sample documents, _and_
     ## different from what's shown in Section 6.5.  Following the sample doc
@@ -2414,7 +2419,7 @@ class HtmlWriter(BaseV3Writer):
             dl.append( build.dt('%s:'%name, classes='label-%s'%cls))
             dl.append( build.dd(value, classes=cls))
         #
-        name  = x.get('name') 
+        name  = x.get('name')
         value = x.get('value')
         if   self.part == 'front':
             if   name == 'RFC':
@@ -2426,7 +2431,7 @@ class HtmlWriter(BaseV3Writer):
             entry(h, name, value)
             return h
         elif self.part == 'references':
-            if name == 'Internet-Draft':            
+            if name == 'Internet-Draft':
                 span = add.span(h, x, name, ', ', value, classes='seriesInfo')
             else:
                 span = add.span(h, x, name, ' ', value, classes='seriesInfo')
@@ -2436,20 +2441,20 @@ class HtmlWriter(BaseV3Writer):
 
 
     # 9.48.  <sourcecode>
-    # 
+    #
     #    This element is rendered in an HTML <pre> element with a CSS class of
     #    "sourcecode".  Note that CDATA blocks do not work consistently in
     #    HTML, so all <, >, and & must be escaped as &lt;, &gt;, and &amp;,
     #    respectively.  If the input XML has a "type" attribute, another CSS
     #    class of "lang-" and the type is added.
-    # 
+    #
     #    If the sourcecode is not inside a <figure> element, a pilcrow
     #    (Section 5.2) is included.  Inside a <figure> element, the figure
     #    title serves the purpose of the pilcrow.
-    # 
+    #
     #    <pre class="sourcecode lang-c">
     #    #include &lt;stdio.h&gt;
-    # 
+    #
     #    int main(void)
     #    {
     #        printf(&quot;hello, world\n&quot;);
@@ -2483,10 +2488,10 @@ class HtmlWriter(BaseV3Writer):
         return add.span(h, x, classes="stream")
 
     # 9.49.  <street>
-    # 
+    #
     #    This element renders as an HTML <div> element with CSS class "street-
     #    address".
-    # 
+    #
     #    <div class="street-address">1899 Wynkoop St, Suite 600</div>
     def render_street(self, h, x):
         return self.address_line_renderer(h, x, classes='street-address')
@@ -2499,25 +2504,25 @@ class HtmlWriter(BaseV3Writer):
 
 
     # 9.50.  <strong>
-    # 
+    #
     #    This element is directly rendered as its HTML counterpart.
     render_strong = default_renderer
 
     # 9.51.  <sub>
-    # 
+    #
     #    This element is directly rendered as its HTML counterpart.
     render_sub = default_renderer
 
     # 9.52.  <sup>
-    # 
+    #
     #    This element is directly rendered as its HTML counterpart.
     render_sup = default_renderer
 
     # 9.53.  <t>
-    # 
+    #
     #    This element is rendered as an HTML <p> element.  A pilcrow
     #    (Section 5.2) is included.
-    # 
+    #
     #    <p id="s-1-1">A paragraph.
     #      <a href="#s-1-1" class="pilcrow">&para;</a></p>
     def render_t(self, h, x):
@@ -2529,9 +2534,9 @@ class HtmlWriter(BaseV3Writer):
         self.maybe_add_pilcrow(p)
         return p
 
-    # 
+    #
     # 9.54.  <table>
-    # 
+    #
     #    This element is directly rendered as its HTML counterpart.
     def render_table(self, h, x):
         name = x.find('name')
@@ -2554,12 +2559,12 @@ class HtmlWriter(BaseV3Writer):
         return table
 
     # 9.55.  <tbody>
-    # 
+    #
     #    This element is directly rendered as its HTML counterpart.
     render_tbody = default_renderer
 
     # 9.56.  <td>
-    # 
+    #
     #    This element is directly rendered as its HTML counterpart.
     def render_td(self, h, x):
         classes = "text-%s" % x.get('align')
@@ -2570,12 +2575,12 @@ class HtmlWriter(BaseV3Writer):
             self.render(hh, c)
 
     # 9.57.  <tfoot>
-    # 
+    #
     #    This element is directly rendered as its HTML counterpart.
     render_tfoot = default_renderer
 
     # 9.58.  <th>
-    # 
+    #
     #    This element is directly rendered as its HTML counterpart.
     def render_th(self, h, x):
         classes = "text-%s" % x.get('align')
@@ -2589,23 +2594,23 @@ class HtmlWriter(BaseV3Writer):
     #
     #    This element is directly rendered as its HTML counterpart.
     render_thead = default_renderer
- 
+
     # 9.60.  <title>
-    # 
+    #
     #    The title of the document appears in a <title> element in the <head>
     #    element, as described in Section 6.3.2.
-    # 
+    #
     #    The title also appears in an <h1> element and follows directly after
     #    the Document Information.  The <h1> element has an "id" attribute
     #    with value "title".
-    # 
+    #
     #    <h1 id="title">HyperText Markup Language Request For
     #        Comments Format</h1>
-    # 
+    #
     #    Inside a reference, the title is rendered as an HTML <span> tag with
     #    CSS class "refTitle".  The text is surrounded by quotes inside the
     #    <span>.
-    # 
+    #
     #    <span class="refTitle">"Tags for Identifying Languages"</span>
     def render_title(self, h, x):
         pp = x.getparent().getparent()
@@ -2635,12 +2640,12 @@ class HtmlWriter(BaseV3Writer):
     render_toc = skip_renderer
 
     # 9.61.  <tr>
-    # 
+    #
     #    This element is directly rendered as its HTML counterpart.
     render_tr = default_renderer
 
     # 9.62.  <tt>
-    # 
+    #
     #    This element is rendered as an HTML <code> element.
     def render_tt(self, h, x):
         hh = add.code(h, x)
@@ -2648,7 +2653,7 @@ class HtmlWriter(BaseV3Writer):
             self.render(hh, c)
 
     # 9.63.  <ul>
-    # 
+    #
     #    This element is directly rendered as its HTML counterpart.  If the
     #    "spacing" attribute has the value "compact", a CSS class of
     #    "ulCompact" will be added.  If the "empty" attribute has the value
@@ -2679,81 +2684,81 @@ class HtmlWriter(BaseV3Writer):
 
     # RFC 7997
     # 3.4.  Body of the Document
-    # 
+    #
     #    When the mention of non-ASCII characters is required for correct
     #    protocol operation and understanding, the characters' Unicode
     #    character name or code point MUST be included in the text.
-    # 
+    #
     #    o  Non-ASCII characters will require identifying the Unicode code
     #       point.
-    # 
+    #
     #    o  Use of the actual UTF-8 character (e.g., Δ) is encouraged so
     #       that a reader can more easily see what the character is, if their
     #       device can render the text.
-    # 
+    #
     #    o  The use of the Unicode character names like "INCREMENT" in
     #       addition to the use of Unicode code points is also encouraged.
     #       When used, Unicode character names should be in all capital
     #       letters.
-    # 
+    #
     #    Examples:
-    # 
+    #
     #    OLD [RFC7564]:
-    # 
+    #
     #    However, the problem is made more serious by introducing the full
     #    range of Unicode code points into protocol strings.  For example,
     #    the characters U+13DA U+13A2 U+13B5 U+13AC U+13A2 U+13AC U+13D2 from
     #    the Cherokee block look similar to the ASCII characters  "STPETER" as
     #    they might appear when presented using a "creative" font family.
-    # 
+    #
     #    NEW/ALLOWED:
-    # 
+    #
     # However, the problem is made more serious by introducing the full
     # range of Unicode code points into protocol strings.  For example,
     # the characters U+13DA U+13A2 U+13B5 U+13AC U+13A2 U+13AC U+13D2
     # (ᏚᎢᎵᎬᎢᎬᏒ) from the Cherokee block look similar to the ASCII
     # characters "STPETER" as they might appear when presented using a
     # "creative" font family.
-    # 
+    #
     #    ALSO ACCEPTABLE:
-    # 
+    #
     # However, the problem is made more serious by introducing the full
     # range of Unicode code points into protocol strings.  For example,
     # the characters "ᏚᎢᎵᎬᎢᎬᏒ" (U+13DA U+13A2 U+13B5 U+13AC U+13A2
     # U+13AC U+13D2) from the Cherokee block look similar to the ASCII
     # characters "STPETER" as they might appear when presented using a
     # "creative" font family.
-    # 
+    #
     #    Example of proper identification of Unicode characters in an RFC:
-    # 
+    #
     # Flanagan                Expires October 27, 2016                [Page 6]
-    # 
-    #  
+    #
+    #
     # Internet-Draft              non-ASCII in RFCs                 April 2016
-    # 
-    # 
+    #
+    #
     #    Acceptable:
-    # 
+    #
     #    o  Temperature changes in the Temperature Control Protocol are
     #       indicated by the U+2206 character.
-    # 
+    #
     #    Preferred:
-    # 
+    #
     #    1.  Temperature changes in the Temperature Control Protocol are
     #        indicated by the U+2206 character ("Δ").
-    # 
+    #
     #    2.  Temperature changes in the Temperature Control Protocol are
     #        indicated by the U+2206 character (INCREMENT).
-    # 
+    #
     #    3.  Temperature changes in the Temperature Control Protocol are
     #        indicated by the U+2206 character ("Δ", INCREMENT).
-    # 
+    #
     #    4.  Temperature changes in the Temperature Control Protocol are
     #        indicated by the U+2206 character (INCREMENT, "Δ").
-    # 
+    #
     #    5.  Temperature changes in the Temperature Control Protocol are
     #        indicated by the "Delta" character "Δ" (U+2206).
-    # 
+    #
     #    6.  Temperature changes in the Temperature Control Protocol are
     #        indicated by the character "Δ" (INCREMENT, U+2206).
     def render_u(self, h, x):
@@ -2770,14 +2775,14 @@ class HtmlWriter(BaseV3Writer):
         span = add.span(h, None, text, classes="unicode", id=anchor)
         span.tail = x.tail
         return span
-        
+
     # 9.64.  <uri>
-    # 
+    #
     #    This element is rendered as an HTML <div> containing the string
     #    "URI:" and an HTML <a> element with the "href" attribute set to the
     #    linked URI, CSS class of "url" (note that the value is "url", not
     #    "uri" as one might expect), and the contents set to the linked URI.
-    # 
+    #
     #    <div>URI:
     #      <a href="http://www.example.com"
     #         class="url">http://www.example.com</a>
@@ -2796,12 +2801,12 @@ class HtmlWriter(BaseV3Writer):
             return div
 
     # 9.65.  <workgroup>
-    # 
+    #
     #    This element does not add any direct output to HTML.
     render_workgroup = null_renderer    # handled in render_rfc, when rendering the page top for drafts
 
     # 9.66.  <xref>
-    # 
+    #
     #    This element is rendered as an HTML <a> element containing an
     #    appropriate local link as the "href" attribute.  The value of the
     #    "href" attribute is taken from the "target" attribute, prepended by
@@ -2811,11 +2816,11 @@ class HtmlWriter(BaseV3Writer):
     #    attribute points to a <reference> or <referencegroup> element, then
     #    the generated <a> element is surrounded by square brackets in the
     #    output.
-    # 
+    #
     #    <a class="xref" href="#target">Table 2</a>
-    # 
+    #
     #    or
-    # 
+    #
     #    [<a class="xref" href="#RFC1234">RFC1234</a>]
     #
     # Regarding HTML class assignment:
@@ -2890,21 +2895,21 @@ class HtmlWriter(BaseV3Writer):
             format  = x.get('sectionFormat')
             exptext = ("%s " % x.text.strip()) if (x.text and x.text.strip()) else ''
             # 9.44.1.  displayFormat='of'
-            # 
+            #
             #    The output is an <a class='relref'> HTML tag, with contents of
             #    "Section " and the value of the "section" attribute.  This is
             #    followed by the word "of" (surrounded by whitespace).  This is
             #    followed by the <a class='xref'> HTML tag (surrounded by square
             #    brackets).
-            # 
+            #
             #    For example, with an input of:
-            # 
+            #
             #    See <relref section="2.3" target="RFC9999" displayFormat="of"
             #    derivedLink="http://www.rfc-editor.org/info/rfc9999#s-2.3"/>
             #    for an overview.
-            # 
+            #
             #    The HTML generated will be:
-            # 
+            #
             #    See <a class="relref"
             #    href="http://www.rfc-editor.org/info/rfc9999#s-2.3">Section
             #    2.3</a> of [<a class="xref" href="#RFC9999">RFC9999</a>]
@@ -2920,20 +2925,20 @@ class HtmlWriter(BaseV3Writer):
                 return span
 
             # 9.44.2.  displayFormat='comma'
-            # 
+            #
             #    The output is an <a class='xref'> HTML tag (wrapped by square
             #    brackets), followed by a comma (","), followed by whitespace,
             #    followed by an <a class='relref'> HTML tag, with contents of
             #    "Section " and the value of the "section" attribute.
-            # 
+            #
             #    For example, with an input of:
-            # 
+            #
             #    See <relref section="2.3" target="RFC9999" displayFormat="comma"
             #    derivedLink="http://www.rfc-editor.org/info/rfc9999#s-2.3"/>,
             #    for an overview.
-            # 
+            #
             #    The HTML generated will be:
-            # 
+            #
             #    See [<a class="xref" href="#RFC9999">RFC9999</a>], <a class="relref"
             #    href="http://www.rfc-editor.org/info/rfc9999#s-2.3">Section 2.3</a>,
             #    for an overview.
@@ -2949,7 +2954,7 @@ class HtmlWriter(BaseV3Writer):
 
 
             # 9.44.3.  displayFormat='parens'
-            # 
+            #
             #    The output is an <a> element with "href" attribute whose value is the
             #    value of the "target" attribute prepended by "#", and whose content
             #    is the value of the "target" attribute; the entire element is wrapped
@@ -2958,16 +2963,16 @@ class HtmlWriter(BaseV3Writer):
             #    "derivedLink" attribute and whose content is the value of the
             #    "derivedRemoteContent" attribute; the entire element is wrapped in
             #    parentheses.
-            # 
+            #
             #    For example, if Section 2.3 of RFC 9999 has the title "Protocol
             #    Overview", for an input of:
-            # 
+            #
             #    See <relref section="2.3" target="RFC9999" displayFormat="parens"
             #    derivedLink="http://www.rfc-editor.org/info/rfc9999#s-2.3"
             #    derivedRemoteContent="Section 2.3"/> for an overview.
-            # 
+            #
             #    The HTML generated will be:
-            # 
+            #
             #    See [<a class="relref" href="#RFC9999">RFC9999</a>]
             #    (<a class="relref"
             #    href="http://www.rfc-editor.org/info/rfc9999#s-2.3">Section
@@ -2983,21 +2988,21 @@ class HtmlWriter(BaseV3Writer):
                 span.tail = x.tail
                 return span
 
-            # 
+            #
             # 9.44.4.  displayFormat='bare'
-            # 
+            #
             #    The output is an <a> element whose "href" attribute is the value of
             #    the "derivedLink" attribute and whose content is the value of the
             #    "derivedRemoteContent" attribute.
-            # 
+            #
             #    For this input:
-            # 
+            #
             #    See <relref section="2.3" target="RFC9999" displayFormat="bare"
             #    derivedLink="http://www.rfc-editor.org/info/rfc9999#s-2.3"
             #    derivedRemoteContent="Section 2.3"/> and ...
-            # 
+            #
             #    The HTML generated will be:
-            # 
+            #
             #    See <a class="relref"
             #    href="http://www.rfc-editor.org/info/rfc9999#s-2.3">Section
             #    2.3</a> and ...
